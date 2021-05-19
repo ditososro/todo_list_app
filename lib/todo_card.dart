@@ -16,7 +16,7 @@ class TodoCard extends StatelessWidget {
       title: Text(task.name,
           style: TextStyle(
             fontSize: 18,
-            decoration: task.isFinalized !=1 ? TextDecoration.lineThrough : null,
+            decoration: task.isFinalized !=0 ? TextDecoration.lineThrough : null,
           )
       ),
       onChanged: (value) {
@@ -31,7 +31,7 @@ class TodoCard extends StatelessWidget {
       task.description,
         style: TextStyle(
           fontSize: 10,
-          decoration: task.isFinalized !=1 ? TextDecoration.lineThrough : null,
+          decoration: task.isFinalized !=0 ? TextDecoration.lineThrough : null,
         ),
       ),
           Text(
@@ -40,7 +40,7 @@ class TodoCard extends StatelessWidget {
               fontSize: 13,
               fontWeight: FontWeight.bold,
               fontStyle: FontStyle.italic,
-              decoration: task.isFinalized !=1 ? TextDecoration.lineThrough : null,
+              decoration: task.isFinalized !=0 ? TextDecoration.lineThrough : null,
             ),
           ),
         ],
