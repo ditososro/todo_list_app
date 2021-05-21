@@ -14,26 +14,43 @@ class ToDoList extends StatefulWidget {
 
 class _ToDoListState extends State<ToDoList> {
   bool isFinished = false;
-  /*
-  List<Task> hardcodeTasks = [
-    Task(name:"Kerja",todoDate: "Today",todoTime: "10 AM", description: "Gitulah pokoknya", colorTag: Task.ORANGE_COLOR, isFinalized: true),
-    Task(name:"Kerja2",todoDate: "besok",todoTime: "9 AM", description: "Gitulah pokoknya(2)", colorTag: Task.BLUE_COLOR, isFinalized: false)
-  ];
-   */
 
+  bool isDoneFilterOn;
+
+  Widget appBarTitle;
+  IconData appBarSearchIcon;
   Future<List<Task>> _displayedTodos;
 
   @override
   void initState(){
     super.initState();
-    _updateTodoList();
+    _updateTodoList(false);
+    appBarSearchIcon = Icons.search;
+    appBarTitle = Text('Things to do');
+    isDoneFilterOn = false;
   }
 
-  _updateTodoList() {
+  _updateTodoList(statusFilter) {
+    if(statusFilter){
+      setState(() {
+        _displayedTodos = DatabaseHelper.instance.getDoneTodoList();
+      });
+    }
+    else{
+      setState(() {
+        _displayedTodos = DatabaseHelper.instance.getTodoList();
+      });
+    }
+  }
+
+  _searchTodoList(queryString){
     setState(() {
-      _displayedTodos = DatabaseHelper.instance.getTodoList();
+      _displayedTodos = DatabaseHelper.instance.searchTodoList(queryString);
+      appBarSearchIcon = Icons.search;
+      appBarTitle = Text('Things to do');
     });
   }
+
 
 
   @override
@@ -46,9 +63,40 @@ class _ToDoListState extends State<ToDoList> {
               padding: EdgeInsets.only(right: 20.0),
               child: GestureDetector(
                 onTap: () {},
-                child: Icon(
-                  Icons.search,
-                  size: 26.0,
+                child: IconButton(
+                  icon: Icon(
+                    appBarSearchIcon,
+                    color: Colors.white,
+                  ),
+                  tooltip: 'Search',
+                  onPressed: (){
+                    if (appBarSearchIcon == Icons.search) {
+                      setState(() {
+                        appBarSearchIcon = Icons.close;
+                        appBarTitle = TextField(
+                          cursorColor: Colors.white,
+                          decoration: InputDecoration(
+                            hintText: "Search todos",
+                            isDense: true,
+                            contentPadding: EdgeInsets.all(4.0),
+                          ),
+                          style: TextStyle(
+                            color: Colors.white,
+                          ),
+                          onSubmitted: (searchKey){
+                            _searchTodoList(searchKey);
+                          },
+                        );
+                      });
+                    }
+                    else{
+                      setState(() {
+                        appBarSearchIcon = Icons.search;
+                        appBarTitle = Text('Things to do');
+                      });
+                    }
+
+                  },
                 ),
               )
           ),
@@ -61,13 +109,12 @@ class _ToDoListState extends State<ToDoList> {
                   Text("Status"),
                     SizedBox(width : 5),
                     Checkbox(
-                        value: isFinished,
-                        activeColor: Colors.orange[400],
-                        onChanged: (newValue){
-                          setState(() {
-                            isFinished = newValue;
-                          });
-                        }),
+                        value: isDoneFilterOn, onChanged: (newValue){
+                      setState(() {
+                        isDoneFilterOn = newValue;
+                      });
+                      _updateTodoList(isDoneFilterOn);
+                    })
                 ],
                 ),
               ),

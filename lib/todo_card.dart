@@ -22,7 +22,7 @@ class TodoCard extends StatelessWidget {
       onChanged: (value) {
         task.isFinalized = value ? 1 : 0;
         DatabaseHelper.instance.updateTodo(task);
-        updateTodos();
+        updateTodos(false);
       },
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

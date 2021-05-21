@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:todo_list_app/task.dart';
-
 class DatabaseHelper {
   static final DatabaseHelper instance = DatabaseHelper._instance();
   static Database _db;
@@ -23,6 +22,19 @@ class DatabaseHelper {
     String path = dir.path + 'todo_list.db';
     final todoListDb = await openDatabase(path, version: 1, onCreate: _createDb);
     return todoListDb;
+  }
+
+  Future<List<Task>> searchTodoList(queryString) async {
+    Database db = await this.db;
+
+    final List<Map<String,dynamic>> result = await db.query('$todoTable', where: "$colName LIKE ?", whereArgs: ['%$queryString%']);
+    final List<Task> todoList = [];
+
+    result.forEach((todoMap) {
+      todoList.add(Task.fromMap(todoMap));
+    });
+
+    return todoList;
   }
 
   void _createDb(Database db, int version) async {
@@ -55,6 +67,18 @@ class DatabaseHelper {
 
     todoMapList.forEach((todoMap) {
       todoList.add(Task.fromMap(todoMap));
+    });
+    return todoList;
+  }
+
+  Future<List<Task>> getDoneTodoList() async {
+    final List<Map<String, dynamic>> todoMapList = await getTodoMapList();
+    final List<Task> todoList = [];
+
+    todoMapList.forEach((todoMap) {
+      if(todoMap['is_finalized'] == 1){
+        todoList.add(Task.fromMap(todoMap));
+      }
     });
     return todoList;
   }
