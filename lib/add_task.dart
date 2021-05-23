@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:todo_list_app/task.dart';
 import 'package:todo_list_app/database_helper.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 
 class AddTaskScreen extends StatefulWidget {
   final Function updateTodos;
@@ -21,20 +22,29 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   bool isNewTaskFinalized = false;
   int _colorChosen = 1;
   String _todoTime = '';
-
+  final df = new DateFormat('hh:mm a');
   final DateFormat _dateFormatter = DateFormat('dd MMM yyyy');
-  TextEditingController _dateController = TextEditingController();
+  TextEditingController _dateController = new TextEditingController();
+  TextEditingController _timeController = new TextEditingController();
 
   _selectDate() async {
-    DateTime picked = await showDatePicker(
-        context: context,
-        initialDate: new DateTime.now(),
-        firstDate: new DateTime(2021),
-        lastDate: new DateTime(2100)
-    );
+
+    DateTime picked = await DatePicker.showDatePicker(context,
+        showTitleActions: true,
+        currentTime: DateTime.now(), locale: LocaleType.en);
     if(picked != null) setState(() => _dateTime = picked);
     _dateController.text = _dateFormatter.format(_dateTime);
   }
+
+  _selectTime() async {
+    DateTime chosen = await DatePicker.showTime12hPicker(context,
+        showTitleActions: true,
+    currentTime: DateTime.now(), locale: LocaleType.en);
+    if(chosen != null) setState(() => _todoTime = df.format(chosen));
+    _timeController.text = (_todoTime);
+  }
+
+
 
   _submit() {
     if(_formKey.currentState.validate()) {
@@ -49,7 +59,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
         isFinalized: (isNewTaskFinalized) ? 0 : 1,
       );
       DatabaseHelper.instance.insertTodo(newTask);
-      widget.updateTodos();
+      widget.updateTodos(false);
     }
     Navigator.pop(context);
   }
@@ -179,9 +189,8 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                                         isDense: true,
                                         contentPadding: EdgeInsets.all(4.0)
                                     ),
-                                    validator: (input) => input.trim().isEmpty ? 'Please enter todo time' : null,
-                                    onSaved: (input) => _todoTime = input,
-                                    initialValue: _todoTime,
+                                    onTap: _selectTime,
+                                      controller: _timeController
                                   ),
                                 ),
                               ),
